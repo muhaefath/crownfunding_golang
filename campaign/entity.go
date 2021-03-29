@@ -1,6 +1,9 @@
 package campaign
 
-import "time"
+import (
+	"golang_project/user"
+	"time"
+)
 
 type Campaign struct {
 	Id               int
@@ -12,9 +15,11 @@ type Campaign struct {
 	GoalAmmount      int
 	CurrentAmount    int
 	Slug             string
+	Perks            string
 	CreatedAt        time.Time
 	UpdateAt         time.Time
 	CampaignImages   []CampaignImage
+	User             user.User
 }
 
 type CampaignImage struct {

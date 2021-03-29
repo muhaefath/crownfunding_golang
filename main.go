@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"golang_project/auth"
 	"golang_project/campaign"
 	"golang_project/handler"
@@ -27,23 +26,24 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	camppaginRepository := campaign.NewRepository(db)
-	campaigns, err := camppaginRepository.FindAll()
-
-	campaigns, err = camppaginRepository.FindByUserId(1)
-
-	fmt.Println(campaigns[0].Id)
-	fmt.Println(campaigns[0].CampaignImages[0].FileName)
 
 	userService := user.NewService(userRepository)
+	campaignService := campaign.NewService(camppaginRepository)
+
 	authService := auth.NewService()
 	userHandler := handler.NewUserHandler(userService, authService)
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 
 	router := gin.Default()
+	router.Static("/images", "./images")
 	api := router.Group("api/v1")
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/upload_avatar", authMiddleware(authService, userService), userHandler.UploadAvatar)
+
+	api.GET("/campagins", campaignHandler.FindCampaigns)
+	api.GET("/campaign/:id", campaignHandler.FindCampaign)
 
 	router.Run()
 
