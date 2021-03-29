@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"golang_project/auth"
+	"golang_project/campaign"
 	"golang_project/handler"
 	"golang_project/helper"
 	"golang_project/user"
@@ -24,6 +26,14 @@ func main() {
 	}
 
 	userRepository := user.NewRepository(db)
+	camppaginRepository := campaign.NewRepository(db)
+	campaigns, err := camppaginRepository.FindAll()
+
+	campaigns, err = camppaginRepository.FindByUserId(1)
+
+	fmt.Println(campaigns[0].Id)
+	fmt.Println(campaigns[0].CampaignImages[0].FileName)
+
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
 	userHandler := handler.NewUserHandler(userService, authService)
