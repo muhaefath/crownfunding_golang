@@ -5,6 +5,7 @@ import (
 	"golang_project/campaign"
 	"golang_project/handler"
 	"golang_project/helper"
+	"golang_project/transaction"
 	"golang_project/user"
 	"log"
 	"net/http"
@@ -26,26 +27,36 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	camppaginRepository := campaign.NewRepository(db)
+	transactionRepository := transaction.NewRepository(db)
 
 	userService := user.NewService(userRepository)
 	campaignService := campaign.NewService(camppaginRepository)
+	transactionService := transaction.NewService(transactionRepository, camppaginRepository)
 
 	authService := auth.NewService()
 	userHandler := handler.NewUserHandler(userService, authService)
 	campaignHandler := handler.NewCampaignHandler(campaignService)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	router := gin.Default()
 	router.Static("/images", "./images")
 	api := router.Group("api/v1")
+
+	// users
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/upload_avatar", authMiddleware(authService, userService), userHandler.UploadAvatar)
 
+	// campaign
 	api.GET("/campagins", campaignHandler.FindCampaigns)
 	api.GET("/campaign/:id", campaignHandler.FindCampaign)
 	api.POST("/campagins", authMiddleware(authService, userService), campaignHandler.CreateCampaign)
 	api.PUT("/campagins/:id", authMiddleware(authService, userService), campaignHandler.UpdateCampaign)
+	api.POST("/campagins-images", authMiddleware(authService, userService), campaignHandler.UploadImage)
+
+	// transaction
+	api.GET("/campaign/:id/transaction", authMiddleware(authService, userService), transactionHandler.GetCampaignTransactions)
 
 	router.Run()
 
