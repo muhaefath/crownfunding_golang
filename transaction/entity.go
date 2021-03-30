@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"golang_project/campaign"
 	"golang_project/user"
 	"time"
 )
@@ -15,4 +16,5 @@ type Transaction struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	User       user.User
+	Campaign   campaign.Campaign
 }
